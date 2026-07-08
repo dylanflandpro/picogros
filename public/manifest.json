@@ -1,0 +1,24 @@
+{
+  "name": "PicoGros",
+  "short_name": "PicoGros",
+  "description": "Le jeu qui met l’ambiance en soirée",
+  "start_url": "/picogros/",
+  "scope": "/picogros/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0B1E28",
+  "theme_color": "#0B1E28",
+  "icons": [
+    {
+      "src": "/picogros/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/picogros/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
