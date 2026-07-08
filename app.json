@@ -1,12 +1,13 @@
 {
   "expo": {
-    "name": "picolo",
-    "slug": "picolo",
+    "name": "PicoGros",
+    "slug": "picogros",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "picolo",
-    "userInterfaceStyle": "automatic",
+    "scheme": "picogros",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0B1E28",
     "ios": {
       "icon": "./assets/expo.icon"
     },
@@ -28,11 +29,13 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#0B1E28",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
-      ]
+      ],
+      "expo-font",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,
