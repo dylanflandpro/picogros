@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { MODES } from '@/data/modes';
+import { enterAnim } from '@/lib/animations';
 import type { GameMode } from '@/data/types';
 import { useGame, type Intensity } from '@/store/game';
 
@@ -38,7 +39,7 @@ export default function ModesScreen() {
         <Text style={styles.heading}>Choisis ton ambiance</Text>
         <Text style={styles.subheading}>Chaque mode a son propre délire.</Text>
 
-        <Animated.View entering={FadeInDown.duration(400)} style={styles.settings}>
+        <Animated.View entering={enterAnim(FadeInDown.duration(400))} style={styles.settings}>
           <View style={styles.settingRow}>
             <Text style={styles.settingLabel}>Intensité</Text>
             <View style={styles.segmented}>
@@ -82,7 +83,7 @@ export default function ModesScreen() {
         {MODES.map((mode, i) => {
           const locked = players.length < mode.minPlayers;
           return (
-            <Animated.View key={mode.id} entering={FadeInDown.delay(i * 80).duration(400)}>
+            <Animated.View key={mode.id} entering={enterAnim(FadeInDown.delay(i * 80).duration(400))}>
               <Pressable
                 onPress={() => launch(mode)}
                 disabled={locked}

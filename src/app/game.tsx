@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeInDown, ZoomIn } from 'react-native-reanimated';
 
 import type { CardKind } from '@/data/types';
+import { enterAnim } from '@/lib/animations';
 import { useGame } from '@/store/game';
 
 const KIND_LABELS: Record<CardKind, string> = {
@@ -86,7 +87,7 @@ export default function GameScreen() {
 
       {finished ? (
         <View style={styles.cardZone}>
-          <Animated.View entering={ZoomIn.duration(400)} style={styles.endBox}>
+          <Animated.View entering={enterAnim(ZoomIn.duration(400))} style={styles.endBox}>
             <Text style={styles.endEmoji}>🏁</Text>
             <Text style={[styles.endTitle, { color: mode.colors.text }]}>C’est terminé !</Text>
             <Text style={styles.endSubtitle}>
@@ -115,7 +116,7 @@ export default function GameScreen() {
         </View>
       ) : (
         <Pressable style={styles.cardZone} onPress={advance}>
-          <Animated.View key={index} entering={FadeInDown.duration(300)} style={styles.cardContent}>
+          <Animated.View key={index} entering={enterAnim(FadeInDown.duration(300))} style={styles.cardContent}>
             <View
               style={[
                 styles.kindPill,
@@ -134,7 +135,7 @@ export default function GameScreen() {
             <Text style={[styles.cardText, { color: mode.colors.text }]}>{card!.text}</Text>
           </Animated.View>
 
-          <Animated.Text entering={FadeIn.delay(600)} style={styles.tapHint}>
+          <Animated.Text entering={enterAnim(FadeIn.delay(600))} style={styles.tapHint}>
             Touche l’écran pour continuer
           </Animated.Text>
         </Pressable>

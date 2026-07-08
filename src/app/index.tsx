@@ -16,6 +16,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 
+import { enterAnim } from '@/lib/animations';
 import { useGame } from '@/store/game';
 
 const STORAGE_KEY = 'picogros:players';
@@ -61,13 +62,13 @@ export default function PlayersScreen() {
         style={[styles.flex, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 16 }]}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <Animated.View entering={FadeInDown.duration(500)} style={styles.header}>
+        <Animated.View entering={enterAnim(FadeInDown.duration(500))} style={styles.header}>
           <Text style={styles.logo}>🍹</Text>
           <Text style={styles.title}>PICOGROS</Text>
           <Text style={styles.subtitle}>Le jeu qui met l’ambiance en soirée</Text>
         </Animated.View>
 
-        <Animated.View entering={FadeInUp.delay(150).duration(500)} style={styles.card}>
+        <Animated.View entering={enterAnim(FadeInUp.delay(150).duration(500))} style={styles.card}>
           <Text style={styles.sectionTitle}>
             {players.length === 0
               ? 'Qui joue ce soir ?'
@@ -119,7 +120,7 @@ export default function PlayersScreen() {
           </View>
         </Animated.View>
 
-        <Animated.View entering={FadeInUp.delay(300).duration(500)}>
+        <Animated.View entering={enterAnim(FadeInUp.delay(300).duration(500))}>
           <Pressable
             disabled={!canStart}
             onPress={() => {
