@@ -60,8 +60,8 @@ export default function PlayersScreen() {
 
   return (
     <LinearGradient colors={theme.night} style={styles.flex}>
-      <Glow color={theme.accent} size={420} style={styles.glowTop} />
-      <Glow color={theme.accentAlt} size={360} style={styles.glowBottom} />
+      <Glow color={theme.accent} edge="top" height={300} />
+      <Glow color={theme.accentAlt} edge="bottom" height={260} opacity={0.12} />
 
       <KeyboardAvoidingView
         style={[styles.flex, { paddingTop: insets.top + 28, paddingBottom: insets.bottom + 16 }]}
@@ -176,8 +176,6 @@ export default function PlayersScreen() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  glowTop: { top: -160, left: -120 },
-  glowBottom: { bottom: -140, right: -120, transform: [{ rotate: '180deg' }] },
   header: { alignItems: 'center', marginBottom: 24 },
   logo: { fontSize: 60, marginBottom: 6 },
   title: {

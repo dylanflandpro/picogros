@@ -32,7 +32,7 @@ export default function ModesScreen() {
 
   return (
     <LinearGradient colors={theme.night} style={styles.flex}>
-      <Glow color={theme.accent} size={380} style={styles.glowTop} />
+      <Glow color={theme.accent} edge="top" height={260} opacity={0.1} />
 
       <ScrollView
         contentContainerStyle={[
@@ -163,7 +163,6 @@ export default function ModesScreen() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  glowTop: { top: -140, right: -140 },
   list: { paddingHorizontal: 20, gap: 14 },
   heading: {
     color: theme.white,
