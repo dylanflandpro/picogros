@@ -8,9 +8,10 @@ export const caliente: GameMode = {
     'Orienté questions coquines, soyez prêts à dévoiler vos secrets les mieux gardés. Est-ce que ça va pécho ce soir ?',
   emoji: '🔥',
   colors: {
-    gradient: ['#C2185B', '#5E0B36'],
-    accent: '#FF6B9D',
+    gradient: ['#DB2E6C', '#470A2E'],
+    accent: '#FF85AC',
     text: '#FFFFFF',
+    onAccent: '#42081F',
   },
   minPlayers: 2,
   spicy: true,

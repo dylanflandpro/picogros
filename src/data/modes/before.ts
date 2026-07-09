@@ -8,9 +8,10 @@ export const before: GameMode = {
     "Le mode de jeu parfait pour s'ambiancer en soirée. Soyez prêts, on ne vous fera pas de cadeaux.",
   emoji: '🕶️',
   colors: {
-    gradient: ['#1B4965', '#0E2A3A'],
-    accent: '#F5C518',
+    gradient: ['#1F5C9E', '#101B45'],
+    accent: '#FFC753',
     text: '#FFFFFF',
+    onAccent: '#33230A',
   },
   minPlayers: 2,
   cards: [

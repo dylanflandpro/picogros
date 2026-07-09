@@ -8,9 +8,10 @@ export const debiles: GameMode = {
     'Si vous êtes cons comme vos pieds, ce pack est fait pour vous. Attention, public averti.',
   emoji: '🤪',
   colors: {
-    gradient: ['#7B2FBE', '#3D1266'],
-    accent: '#FF7AC6',
+    gradient: ['#8E3FD4', '#331057'],
+    accent: '#FF7AD9',
     text: '#FFFFFF',
+    onAccent: '#3D0B33',
   },
   minPlayers: 2,
   cards: [

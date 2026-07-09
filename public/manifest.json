@@ -6,8 +6,8 @@
   "scope": "/picogros/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0B1E28",
-  "theme_color": "#0B1E28",
+  "background_color": "#0C071D",
+  "theme_color": "#0C071D",
   "icons": [
     {
       "src": "/picogros/apple-touch-icon.png",

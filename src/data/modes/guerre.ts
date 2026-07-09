@@ -8,9 +8,10 @@ export const guerre: GameMode = {
     'Affrontez-vous en équipe ! Soyez solidaires et n’ayez aucune pitié... Ce soir c’est la guerre !',
   emoji: '⚔️',
   colors: {
-    gradient: ['#37474F', '#101820'],
-    accent: '#E53935',
+    gradient: ['#45525E', '#0D1218'],
+    accent: '#FF5A50',
     text: '#FFFFFF',
+    onAccent: '#310605',
   },
   minPlayers: 4,
   cards: [

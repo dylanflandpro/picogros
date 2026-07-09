@@ -16,7 +16,7 @@ export default function Root({ children }: PropsWithChildren) {
           content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
         />
         <title>PicoGros</title>
-        <meta name="theme-color" content="#0B1E28" />
+        <meta name="theme-color" content="#0C071D" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -24,7 +24,7 @@ export default function Root({ children }: PropsWithChildren) {
         <link rel="manifest" href="/picogros/manifest.json" />
         <link rel="apple-touch-icon" href="/picogros/apple-touch-icon.png" />
         <ScrollViewStyleReset />
-        <style dangerouslySetInnerHTML={{ __html: 'html,body{background:#0B1E28}' }} />
+        <style dangerouslySetInnerHTML={{ __html: 'html,body{background:#0C071D}' }} />
         <script
           dangerouslySetInnerHTML={{
             __html:

@@ -8,9 +8,10 @@ export const bar: GameMode = {
     'Si vous êtes prêts à retourner le bar, c’est le mode de jeu parfait. Attention, il ne faut pas avoir peur du ridicule.',
   emoji: '🍻',
   colors: {
-    gradient: ['#B4552D', '#5C2413'],
-    accent: '#FFB454',
+    gradient: ['#C75B24', '#471708'],
+    accent: '#FFB868',
     text: '#FFFFFF',
+    onAccent: '#3B1B04',
   },
   minPlayers: 2,
   cards: [

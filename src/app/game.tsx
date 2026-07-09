@@ -64,7 +64,10 @@ export default function GameScreen() {
       style={styles.flex}
     >
       <View style={[styles.topBar, { paddingTop: insets.top + 10 }]}>
-        <Pressable onPress={quit} style={({ pressed }) => [styles.closeBtn, pressed && styles.pressed]}>
+        <Pressable
+          onPress={quit}
+          style={({ pressed }) => [styles.closeBtn, pressed && styles.pressed]}
+        >
           <Text style={styles.closeBtnText}>✕</Text>
         </Pressable>
         <Text style={[styles.modeName, { color: mode.colors.text }]}>
@@ -79,7 +82,11 @@ export default function GameScreen() {
           <View
             style={[
               styles.progressFill,
-              { width: `${progress * 100}%`, backgroundColor: mode.colors.accent },
+              {
+                width: `${progress * 100}%`,
+                backgroundColor: mode.colors.accent,
+                shadowColor: mode.colors.accent,
+              },
             ]}
           />
         </View>
@@ -87,7 +94,10 @@ export default function GameScreen() {
 
       {finished ? (
         <View style={styles.cardZone}>
-          <Animated.View entering={enterAnim(ZoomIn.duration(400))} style={styles.endBox}>
+          <Animated.View
+            entering={enterAnim(ZoomIn.springify().damping(14))}
+            style={styles.endBox}
+          >
             <Text style={styles.endEmoji}>🏁</Text>
             <Text style={[styles.endTitle, { color: mode.colors.text }]}>C’est terminé !</Text>
             <Text style={styles.endSubtitle}>
@@ -100,11 +110,13 @@ export default function GameScreen() {
               }}
               style={({ pressed }) => [
                 styles.endBtn,
-                { backgroundColor: mode.colors.accent },
+                { backgroundColor: mode.colors.accent, shadowColor: mode.colors.accent },
                 pressed && styles.pressed,
               ]}
             >
-              <Text style={styles.endBtnText}>Rejouer ce mode</Text>
+              <Text style={[styles.endBtnText, { color: mode.colors.onAccent }]}>
+                Rejouer ce mode
+              </Text>
             </Pressable>
             <Pressable
               onPress={quit}
@@ -116,17 +128,23 @@ export default function GameScreen() {
         </View>
       ) : (
         <Pressable style={styles.cardZone} onPress={advance}>
-          <Animated.View key={index} entering={enterAnim(FadeInDown.duration(300))} style={styles.cardContent}>
+          <Animated.View
+            key={index}
+            entering={enterAnim(FadeInDown.springify().damping(17).stiffness(160))}
+            style={styles.cardContent}
+          >
             <View
               style={[
                 styles.kindPill,
-                { backgroundColor: card?.isFollowUp ? 'rgba(0,0,0,0.35)' : mode.colors.accent },
+                card?.isFollowUp
+                  ? styles.kindPillFollowUp
+                  : { backgroundColor: mode.colors.accent, shadowColor: mode.colors.accent },
               ]}
             >
               <Text
                 style={[
                   styles.kindPillText,
-                  card?.isFollowUp && { color: mode.colors.accent },
+                  { color: card?.isFollowUp ? mode.colors.accent : mode.colors.onAccent },
                 ]}
               >
                 {card?.isFollowUp ? '🦠 Fin du virus' : KIND_LABELS[card!.kind]}
@@ -185,11 +203,13 @@ const styles = StyleSheet.create({
     height: 38,
     borderRadius: 19,
     backgroundColor: 'rgba(0,0,0,0.25)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.15)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   closeBtnText: { color: '#FFFFFF', fontSize: 16, fontWeight: '700' },
-  modeName: { fontSize: 16, fontWeight: '800' },
+  modeName: { fontSize: 16, fontWeight: '900' },
   settingsBadge: {
     backgroundColor: 'rgba(0,0,0,0.25)',
     borderRadius: 999,
@@ -201,33 +221,51 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 6,
     borderRadius: 3,
-    backgroundColor: 'rgba(0,0,0,0.25)',
+    backgroundColor: 'rgba(0,0,0,0.28)',
     overflow: 'hidden',
   },
-  progressFill: { height: '100%', borderRadius: 3 },
+  progressFill: {
+    height: '100%',
+    borderRadius: 3,
+    shadowOpacity: 0.8,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 0 },
+  },
   cardZone: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 28,
   },
-  cardContent: { alignItems: 'center', gap: 24 },
+  cardContent: { alignItems: 'center', gap: 26 },
   kindPill: {
     borderRadius: 999,
-    paddingHorizontal: 16,
-    paddingVertical: 7,
+    paddingHorizontal: 18,
+    paddingVertical: 8,
+    shadowOpacity: 0.45,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 6,
   },
-  kindPillText: { color: '#1C1C28', fontSize: 14, fontWeight: '800' },
+  kindPillFollowUp: {
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    shadowOpacity: 0,
+    elevation: 0,
+  },
+  kindPillText: { fontSize: 14, fontWeight: '900', letterSpacing: 0.3 },
   cardText: {
-    fontSize: 26,
-    lineHeight: 36,
-    fontWeight: '700',
+    fontSize: 28,
+    lineHeight: 39,
+    fontWeight: '800',
     textAlign: 'center',
+    textShadowColor: 'rgba(0,0,0,0.25)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 8,
   },
   tapHint: {
     position: 'absolute',
     bottom: 18,
-    color: 'rgba(255,255,255,0.35)',
+    color: 'rgba(255,255,255,0.4)',
     fontSize: 13,
   },
   bottomBar: {
@@ -238,39 +276,47 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   navBtn: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     backgroundColor: 'rgba(0,0,0,0.25)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.15)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   navBtnDisabled: { opacity: 0.3 },
   navBtnText: { color: '#FFFFFF', fontSize: 20, fontWeight: '800' },
-  counter: { color: 'rgba(255,255,255,0.7)', fontSize: 15, fontWeight: '700' },
+  counter: { color: 'rgba(255,255,255,0.75)', fontSize: 15, fontWeight: '800' },
   endBox: { alignItems: 'center', gap: 12, width: '100%' },
-  endEmoji: { fontSize: 60 },
-  endTitle: { fontSize: 32, fontWeight: '900' },
+  endEmoji: { fontSize: 64 },
+  endTitle: { fontSize: 34, fontWeight: '900' },
   endSubtitle: {
-    color: 'rgba(255,255,255,0.7)',
+    color: 'rgba(255,255,255,0.75)',
     fontSize: 15,
     textAlign: 'center',
     marginBottom: 12,
   },
   endBtn: {
     width: '100%',
-    borderRadius: 16,
-    paddingVertical: 15,
+    borderRadius: 18,
+    paddingVertical: 16,
     alignItems: 'center',
+    shadowOpacity: 0.4,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 5 },
+    elevation: 7,
   },
-  endBtnText: { color: '#1C1C28', fontSize: 16, fontWeight: '800' },
+  endBtnText: { fontSize: 16, fontWeight: '900' },
   endBtnGhost: {
     width: '100%',
-    borderRadius: 16,
-    paddingVertical: 15,
+    borderRadius: 18,
+    paddingVertical: 16,
     alignItems: 'center',
     backgroundColor: 'rgba(255,255,255,0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.15)',
   },
   endBtnGhostText: { color: '#FFFFFF', fontSize: 16, fontWeight: '700' },
-  pressed: { opacity: 0.75, transform: [{ scale: 0.97 }] },
+  pressed: { opacity: 0.85, transform: [{ scale: 0.97 }] },
 });

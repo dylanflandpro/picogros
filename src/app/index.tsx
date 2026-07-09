@@ -14,9 +14,11 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+import Animated, { FadeInDown, FadeInUp, ZoomIn } from 'react-native-reanimated';
 
 import { enterAnim } from '@/lib/animations';
+import { Glow } from '@/lib/glow';
+import { theme } from '@/lib/theme';
 import { useGame } from '@/store/game';
 
 const STORAGE_KEY = 'picogros:players';
@@ -57,22 +59,34 @@ export default function PlayersScreen() {
   const canStart = players.length >= 2;
 
   return (
-    <LinearGradient colors={['#16455C', '#0B1E28']} style={styles.flex}>
+    <LinearGradient colors={theme.night} style={styles.flex}>
+      <Glow color={theme.accent} size={420} style={styles.glowTop} />
+      <Glow color={theme.accentAlt} size={360} style={styles.glowBottom} />
+
       <KeyboardAvoidingView
-        style={[styles.flex, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 16 }]}
+        style={[styles.flex, { paddingTop: insets.top + 28, paddingBottom: insets.bottom + 16 }]}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <Animated.View entering={enterAnim(FadeInDown.duration(500))} style={styles.header}>
+        <Animated.View
+          entering={enterAnim(ZoomIn.springify().damping(14).delay(50))}
+          style={styles.header}
+        >
           <Text style={styles.logo}>🍹</Text>
-          <Text style={styles.title}>PICOGROS</Text>
+          <Text style={styles.title}>
+            PICO
+            <Text style={styles.titleAccent}>GROS</Text>
+          </Text>
           <Text style={styles.subtitle}>Le jeu qui met l’ambiance en soirée</Text>
         </Animated.View>
 
-        <Animated.View entering={enterAnim(FadeInUp.delay(150).duration(500))} style={styles.card}>
+        <Animated.View
+          entering={enterAnim(FadeInUp.springify().damping(16).delay(150))}
+          style={styles.card}
+        >
           <Text style={styles.sectionTitle}>
             {players.length === 0
               ? 'Qui joue ce soir ?'
-              : `${players.length} joueur${players.length > 1 ? 's' : ''}`}
+              : `${players.length} joueur${players.length > 1 ? 's' : ''} dans la place`}
           </Text>
 
           <ScrollView
@@ -94,7 +108,10 @@ export default function PlayersScreen() {
               </Pressable>
             ))}
             {players.length === 0 && (
-              <Text style={styles.hint}>Ajoute au moins 2 joueurs pour commencer.</Text>
+              <Text style={styles.hint}>
+                Ajoute au moins 2 joueurs pour lancer la soirée. Tape sur un prénom pour le
+                retirer.
+              </Text>
             )}
           </ScrollView>
 
@@ -103,7 +120,7 @@ export default function PlayersScreen() {
               ref={inputRef}
               style={styles.input}
               placeholder="Prénom du joueur"
-              placeholderTextColor="rgba(255,255,255,0.35)"
+              placeholderTextColor={theme.text35}
               value={name}
               onChangeText={setName}
               onSubmitEditing={submit}
@@ -113,14 +130,21 @@ export default function PlayersScreen() {
             />
             <Pressable
               onPress={submit}
-              style={({ pressed }) => [styles.addBtn, pressed && styles.pressed]}
+              style={({ pressed }) => [styles.addBtnWrap, pressed && styles.pressed]}
             >
-              <Text style={styles.addBtnText}>+</Text>
+              <LinearGradient
+                colors={theme.cta}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.addBtn}
+              >
+                <Text style={styles.addBtnText}>+</Text>
+              </LinearGradient>
             </Pressable>
           </View>
         </Animated.View>
 
-        <Animated.View entering={enterAnim(FadeInUp.delay(300).duration(500))}>
+        <Animated.View entering={enterAnim(FadeInDown.springify().damping(16).delay(300))}>
           <Pressable
             disabled={!canStart}
             onPress={() => {
@@ -128,14 +152,21 @@ export default function PlayersScreen() {
               router.push('/modes');
             }}
             style={({ pressed }) => [
-              styles.startBtn,
-              !canStart && styles.startBtnDisabled,
+              styles.startBtnWrap,
+              canStart && styles.startBtnGlow,
               pressed && styles.pressed,
             ]}
           >
-            <Text style={styles.startBtnText}>
-              {canStart ? 'Choisir un mode  →' : 'Il faut au moins 2 joueurs'}
-            </Text>
+            <LinearGradient
+              colors={canStart ? theme.cta : ['rgba(255,255,255,0.1)', 'rgba(255,255,255,0.08)']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.startBtn}
+            >
+              <Text style={[styles.startBtnText, !canStart && styles.startBtnTextDisabled]}>
+                {canStart ? 'Choisir un mode  →' : 'Il faut au moins 2 joueurs'}
+              </Text>
+            </LinearGradient>
           </Pressable>
         </Animated.View>
       </KeyboardAvoidingView>
@@ -145,33 +176,36 @@ export default function PlayersScreen() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
+  glowTop: { top: -160, left: -120 },
+  glowBottom: { bottom: -140, right: -120, transform: [{ rotate: '180deg' }] },
   header: { alignItems: 'center', marginBottom: 24 },
-  logo: { fontSize: 56, marginBottom: 4 },
+  logo: { fontSize: 60, marginBottom: 6 },
   title: {
-    fontSize: 44,
+    fontSize: 46,
     fontWeight: '900',
-    color: '#FFFFFF',
-    letterSpacing: 8,
+    color: theme.white,
+    letterSpacing: 5,
   },
+  titleAccent: { color: theme.accent },
   subtitle: {
-    color: 'rgba(255,255,255,0.6)',
+    color: theme.text60,
     fontSize: 15,
-    marginTop: 4,
+    marginTop: 6,
   },
   card: {
     flex: 1,
     marginHorizontal: 20,
-    backgroundColor: 'rgba(255,255,255,0.06)',
-    borderRadius: 24,
+    backgroundColor: theme.surface,
+    borderRadius: 28,
     padding: 20,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    borderColor: theme.surfaceBorder,
   },
   sectionTitle: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '700',
-    marginBottom: 12,
+    color: theme.white,
+    fontSize: 19,
+    fontWeight: '800',
+    marginBottom: 14,
   },
   chipsScroll: { flex: 1 },
   chips: {
@@ -183,52 +217,66 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#F5C518',
+    backgroundColor: theme.accent,
     borderRadius: 999,
-    paddingVertical: 8,
-    paddingHorizontal: 14,
+    paddingVertical: 9,
+    paddingHorizontal: 15,
+    shadowColor: theme.accent,
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
   },
-  chipText: { color: '#20303C', fontWeight: '700', fontSize: 15 },
-  chipRemove: { color: 'rgba(32,48,60,0.55)', fontWeight: '900', fontSize: 12 },
-  hint: { color: 'rgba(255,255,255,0.4)', fontSize: 14 },
-  inputRow: { flexDirection: 'row', gap: 10, marginTop: 12 },
+  chipText: { color: theme.onAccent, fontWeight: '800', fontSize: 15 },
+  chipRemove: { color: 'rgba(51,16,54,0.5)', fontWeight: '900', fontSize: 12 },
+  hint: { color: theme.text45, fontSize: 14, lineHeight: 20 },
+  inputRow: { flexDirection: 'row', gap: 10, marginTop: 14 },
   input: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.25)',
-    borderRadius: 14,
+    backgroundColor: theme.inset,
+    borderRadius: 16,
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    color: '#FFFFFF',
+    paddingVertical: 13,
+    color: theme.white,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: theme.surfaceBorder,
+  },
+  addBtnWrap: {
+    borderRadius: 16,
+    shadowColor: theme.accentAlt,
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 5,
   },
   addBtn: {
-    width: 48,
-    borderRadius: 14,
-    backgroundColor: '#F5C518',
+    width: 50,
+    height: '100%',
+    minHeight: 50,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  addBtnText: { color: '#20303C', fontSize: 26, fontWeight: '800', marginTop: -2 },
-  startBtn: {
+  addBtnText: { color: theme.onAccent, fontSize: 27, fontWeight: '800', marginTop: -2 },
+  startBtnWrap: {
     marginHorizontal: 20,
-    marginTop: 16,
-    backgroundColor: '#F5C518',
-    borderRadius: 18,
-    paddingVertical: 16,
+    marginTop: 18,
+    borderRadius: 20,
+  },
+  startBtnGlow: {
+    shadowColor: theme.accentAlt,
+    shadowOpacity: 0.45,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 9,
+  },
+  startBtn: {
+    borderRadius: 20,
+    paddingVertical: 18,
     alignItems: 'center',
-    shadowColor: '#F5C518',
-    shadowOpacity: 0.35,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 8,
   },
-  startBtnDisabled: {
-    backgroundColor: 'rgba(255,255,255,0.12)',
-    shadowOpacity: 0,
-    elevation: 0,
-  },
-  startBtnText: { color: '#20303C', fontSize: 17, fontWeight: '800' },
-  pressed: { opacity: 0.7, transform: [{ scale: 0.98 }] },
+  startBtnText: { color: theme.onAccent, fontSize: 17, fontWeight: '900', letterSpacing: 0.3 },
+  startBtnTextDisabled: { color: theme.text45 },
+  pressed: { opacity: 0.85, transform: [{ scale: 0.97 }] },
 });

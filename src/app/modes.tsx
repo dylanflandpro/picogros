@@ -7,6 +7,8 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { MODES } from '@/data/modes';
 import { enterAnim } from '@/lib/animations';
+import { Glow } from '@/lib/glow';
+import { theme } from '@/lib/theme';
 import type { GameMode } from '@/data/types';
 import { useGame, type Intensity } from '@/store/game';
 
@@ -29,17 +31,22 @@ export default function ModesScreen() {
   };
 
   return (
-    <LinearGradient colors={['#16455C', '#0B1E28']} style={styles.flex}>
+    <LinearGradient colors={theme.night} style={styles.flex}>
+      <Glow color={theme.accent} size={380} style={styles.glowTop} />
+
       <ScrollView
         contentContainerStyle={[
           styles.list,
-          { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 96 },
+          { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 100 },
         ]}
       >
         <Text style={styles.heading}>Choisis ton ambiance</Text>
         <Text style={styles.subheading}>Chaque mode a son propre délire.</Text>
 
-        <Animated.View entering={enterAnim(FadeInDown.duration(400))} style={styles.settings}>
+        <Animated.View
+          entering={enterAnim(FadeInDown.springify().damping(16))}
+          style={styles.settings}
+        >
           <View style={styles.settingRow}>
             <Text style={styles.settingLabel}>Intensité</Text>
             <View style={styles.segmented}>
@@ -83,11 +90,17 @@ export default function ModesScreen() {
         {MODES.map((mode, i) => {
           const locked = players.length < mode.minPlayers;
           return (
-            <Animated.View key={mode.id} entering={enterAnim(FadeInDown.delay(i * 80).duration(400))}>
+            <Animated.View
+              key={mode.id}
+              entering={enterAnim(FadeInDown.springify().damping(16).delay(i * 70))}
+            >
               <Pressable
                 onPress={() => launch(mode)}
                 disabled={locked}
-                style={({ pressed }) => [pressed && styles.pressed]}
+                style={({ pressed }) => [
+                  !locked && [styles.modeGlow, { shadowColor: mode.colors.accent }],
+                  pressed && styles.pressed,
+                ]}
               >
                 <LinearGradient
                   colors={mode.colors.gradient}
@@ -95,7 +108,12 @@ export default function ModesScreen() {
                   end={{ x: 1, y: 1 }}
                   style={[styles.modeCard, locked && styles.locked]}
                 >
-                  <View style={[styles.emojiTile, { backgroundColor: mode.colors.accent }]}>
+                  <View
+                    style={[
+                      styles.emojiTile,
+                      { backgroundColor: mode.colors.accent, shadowColor: mode.colors.accent },
+                    ]}
+                  >
                     <Text style={styles.emoji}>{mode.emoji}</Text>
                   </View>
                   <View style={styles.modeTexts}>
@@ -105,7 +123,9 @@ export default function ModesScreen() {
                       </Text>
                       {mode.spicy && (
                         <View style={styles.badge}>
-                          <Text style={styles.badgeText}>18+</Text>
+                          <Text style={[styles.badgeText, { color: mode.colors.accent }]}>
+                            18+
+                          </Text>
                         </View>
                       )}
                     </View>
@@ -114,11 +134,10 @@ export default function ModesScreen() {
                     </Text>
                     <Text style={styles.modeDescription}>{mode.description}</Text>
                     {locked && (
-                      <Text style={styles.lockedText}>
-                        🔒 {mode.minPlayers} joueurs minimum
-                      </Text>
+                      <Text style={styles.lockedText}>🔒 {mode.minPlayers} joueurs minimum</Text>
                     )}
                   </View>
+                  {!locked && <Text style={styles.chevron}>›</Text>}
                 </LinearGradient>
               </Pressable>
             </Animated.View>
@@ -144,25 +163,27 @@ export default function ModesScreen() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
+  glowTop: { top: -140, right: -140 },
   list: { paddingHorizontal: 20, gap: 14 },
   heading: {
-    color: '#FFFFFF',
-    fontSize: 30,
+    color: theme.white,
+    fontSize: 32,
     fontWeight: '900',
     marginTop: 8,
+    letterSpacing: 0.2,
   },
   subheading: {
-    color: 'rgba(255,255,255,0.55)',
+    color: theme.text60,
     fontSize: 15,
     marginBottom: 10,
   },
   settings: {
-    backgroundColor: 'rgba(255,255,255,0.06)',
-    borderRadius: 18,
+    backgroundColor: theme.surface,
+    borderRadius: 22,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
-    padding: 14,
-    gap: 14,
+    borderColor: theme.surfaceBorder,
+    padding: 16,
+    gap: 16,
     marginBottom: 4,
   },
   settingRow: {
@@ -171,80 +192,110 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 12,
   },
-  settingLabel: { color: '#FFFFFF', fontSize: 15, fontWeight: '700' },
-  settingHint: { color: 'rgba(255,255,255,0.5)', fontSize: 12, marginTop: 2 },
+  settingLabel: { color: theme.white, fontSize: 15, fontWeight: '800' },
+  settingHint: { color: theme.text45, fontSize: 12, marginTop: 2 },
   crescendoTexts: { flex: 1 },
   segmented: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(0,0,0,0.25)',
-    borderRadius: 12,
+    backgroundColor: theme.inset,
+    borderRadius: 13,
     padding: 3,
     gap: 3,
   },
   segment: {
     paddingVertical: 7,
     paddingHorizontal: 10,
-    borderRadius: 9,
+    borderRadius: 10,
   },
-  segmentActive: { backgroundColor: '#F5C518' },
-  segmentText: { color: 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: '700' },
-  segmentTextActive: { color: '#20303C' },
+  segmentActive: {
+    backgroundColor: theme.accent,
+    shadowColor: theme.accent,
+    shadowOpacity: 0.45,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
+  },
+  segmentText: { color: theme.text60, fontSize: 13, fontWeight: '700' },
+  segmentTextActive: { color: theme.onAccent, fontWeight: '800' },
   toggle: {
     width: 50,
     height: 30,
     borderRadius: 15,
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    backgroundColor: theme.inset,
     padding: 3,
     justifyContent: 'center',
   },
-  toggleOn: { backgroundColor: '#F5C518' },
+  toggleOn: { backgroundColor: theme.accent },
   toggleKnob: {
     width: 24,
     height: 24,
     borderRadius: 12,
     backgroundColor: 'rgba(255,255,255,0.75)',
   },
-  toggleKnobOn: { alignSelf: 'flex-end', backgroundColor: '#20303C' },
+  toggleKnobOn: { alignSelf: 'flex-end', backgroundColor: theme.onAccent },
+  modeGlow: {
+    borderRadius: 26,
+    shadowOpacity: 0.32,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 7,
+  },
   modeCard: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 16,
-    borderRadius: 22,
-    padding: 18,
+    borderRadius: 26,
+    padding: 20,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: 'rgba(255,255,255,0.14)',
   },
   locked: { opacity: 0.45 },
   emojiTile: {
     width: 64,
     height: 64,
-    borderRadius: 16,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 5,
   },
   emoji: { fontSize: 34 },
   modeTexts: { flex: 1 },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  modeTitle: { fontSize: 21, fontWeight: '800' },
+  modeTitle: { fontSize: 22, fontWeight: '900' },
   badge: {
     backgroundColor: 'rgba(0,0,0,0.35)',
-    borderRadius: 6,
+    borderRadius: 7,
     paddingHorizontal: 6,
     paddingVertical: 2,
   },
-  badgeText: { color: '#FF8FB3', fontSize: 11, fontWeight: '800' },
-  modeTagline: { fontSize: 13, fontWeight: '700', marginTop: 1 },
+  badgeText: { fontSize: 11, fontWeight: '800' },
+  modeTagline: {
+    fontSize: 12,
+    fontWeight: '800',
+    marginTop: 2,
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+  },
   modeDescription: {
-    color: 'rgba(255,255,255,0.75)',
+    color: 'rgba(255,255,255,0.78)',
     fontSize: 13,
     lineHeight: 18,
-    marginTop: 4,
+    marginTop: 5,
   },
   lockedText: {
     color: 'rgba(255,255,255,0.8)',
     fontSize: 12,
     fontWeight: '700',
     marginTop: 6,
+  },
+  chevron: {
+    color: 'rgba(255,255,255,0.55)',
+    fontSize: 30,
+    fontWeight: '300',
+    marginLeft: 2,
   },
   footer: {
     position: 'absolute',
@@ -256,18 +307,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingTop: 12,
-    backgroundColor: 'rgba(11,30,40,0.92)',
+    backgroundColor: 'rgba(12,7,29,0.94)',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.07)',
   },
   backBtn: {
     width: 44,
     height: 44,
     borderRadius: 22,
     backgroundColor: 'rgba(255,255,255,0.1)',
+    borderWidth: 1,
+    borderColor: theme.surfaceBorder,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  backBtnText: { color: '#FFFFFF', fontSize: 20, fontWeight: '700' },
-  footerText: { color: '#FFFFFF', fontSize: 16, fontWeight: '800' },
+  backBtnText: { color: theme.white, fontSize: 20, fontWeight: '700' },
+  footerText: { color: theme.white, fontSize: 16, fontWeight: '800' },
   footerSpacer: { width: 44 },
-  pressed: { opacity: 0.75, transform: [{ scale: 0.98 }] },
+  pressed: { opacity: 0.85, transform: [{ scale: 0.98 }] },
 });

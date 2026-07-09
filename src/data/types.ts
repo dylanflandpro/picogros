@@ -36,6 +36,8 @@ export interface ModeColors {
   accent: string;
   /** Couleur du texte sur le dégradé. */
   text: string;
+  /** Texte foncé posé sur un fond accent. */
+  onAccent: string;
 }
 
 export interface GameMode {
