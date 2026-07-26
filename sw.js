@@ -1,5 +1,5 @@
 /* Service worker PicoGros — stale-while-revalidate sur les ressources same-origin. */
-const CACHE = 'picogros-v5';
+const CACHE = 'picogros-v6';
 
 self.addEventListener('install', () => {
   self.skipWaiting();
