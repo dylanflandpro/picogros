@@ -23,6 +23,13 @@ export interface Card {
    * Filtre le deck selon le réglage de la partie et ordonne le mode crescendo.
    */
   intensity?: 1 | 2 | 3;
+  /**
+   * Nombre de joueurs minimum pour que la carte ait du sens (ex. 3 pour un vote).
+   * Sans valeur, déduit des placeholders {p1}..{p3}.
+   */
+  minPlayers?: number;
+  /** Nombre de joueurs maximum (ex. 2 pour une carte réservée aux parties en duo). */
+  maxPlayers?: number;
   /** Texte de la carte de fin pour les virus, injectée quelques cartes plus tard. */
   followUp?: string;
   /** Fourchette [min, max] de cartes avant l'apparition du followUp. Défaut : [6, 12]. */

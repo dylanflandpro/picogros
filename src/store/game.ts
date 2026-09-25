@@ -79,8 +79,19 @@ function filterByIntensity(cards: Card[], intensity: Intensity): Card[] {
 }
 
 /**
+ * Cartes jouables avec ce nombre de joueurs : assez de joueurs distincts
+ * pour les placeholders et bornes minPlayers / maxPlayers respectées.
+ */
+function filterByPlayers(cards: Card[], count: number): Card[] {
+  return cards.filter((c) => {
+    const min = Math.max(c.minPlayers ?? 0, playersNeeded(c.text + (c.followUp ?? '')));
+    return count >= min && count <= (c.maxPlayers ?? Infinity);
+  });
+}
+
+/**
  * Construit une partie : sélectionne GAME_LENGTH cartes mélangées
- * (filtrées par intensité, triées par niveau si crescendo),
+ * (filtrées par nombre de joueurs et intensité, triées par niveau si crescendo),
  * remplit les placeholders, puis insère chaque carte de fin de virus
  * quelques positions après sa carte d'origine (mêmes joueurs tirés).
  */
@@ -90,7 +101,7 @@ export function buildDeck(
   intensity: Intensity,
   crescendo: boolean,
 ): DrawnCard[] {
-  const pool = filterByIntensity(mode.cards, intensity);
+  const pool = filterByIntensity(filterByPlayers(mode.cards, players.length), intensity);
   const source = pick(pool, Math.min(GAME_LENGTH, pool.length));
   if (crescendo) {
     // Tri stable sur un ordre déjà mélangé : l'aléatoire est conservé
