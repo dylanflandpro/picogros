@@ -9,6 +9,7 @@ export interface DrawnCard {
 }
 
 export type Intensity = 'soft' | 'normal' | 'hard';
+export type Level = 1 | 2 | 3;
 
 interface GameState {
   players: string[];
@@ -20,12 +21,14 @@ interface GameState {
   /** Réglages de la partie (choisis sur l'écran des modes). */
   intensity: Intensity;
   crescendo: boolean;
+  /** Niveau joué pour un mode à niveaux, null sinon. */
+  level: Level | null;
 
   addPlayer: (name: string) => void;
   removePlayer: (name: string) => void;
   setIntensity: (intensity: Intensity) => void;
   setCrescendo: (crescendo: boolean) => void;
-  startGame: (mode: GameMode) => void;
+  startGame: (mode: GameMode, level?: Level) => void;
   nextCard: () => void;
   prevCard: () => void;
   endGame: () => void;
@@ -66,6 +69,9 @@ const SIPS_RANGE: Record<Intensity, [number, number]> = {
   hard: [3, 6],
 };
 
+/** Fourchette de gorgées associée à chaque niveau des modes à niveaux. */
+const LEVEL_SIPS: Record<Level, Intensity> = { 1: 'soft', 2: 'normal', 3: 'hard' };
+
 const cardLevel = (card: Card) => card.intensity ?? 2;
 
 /**
@@ -91,7 +97,8 @@ function filterByPlayers(cards: Card[], count: number): Card[] {
 
 /**
  * Construit une partie : sélectionne GAME_LENGTH cartes mélangées
- * (filtrées par nombre de joueurs et intensité, triées par niveau si crescendo),
+ * (filtrées par nombre de joueurs et intensité, triées par niveau si crescendo ;
+ * pour un mode à niveaux, uniquement les cartes du niveau demandé),
  * remplit les placeholders, puis insère chaque carte de fin de virus
  * quelques positions après sa carte d'origine (mêmes joueurs tirés).
  */
@@ -100,17 +107,21 @@ export function buildDeck(
   players: string[],
   intensity: Intensity,
   crescendo: boolean,
+  level?: Level,
 ): DrawnCard[] {
-  const pool = filterByIntensity(filterByPlayers(mode.cards, players.length), intensity);
+  const playable = filterByPlayers(mode.cards, players.length);
+  const pool = level
+    ? playable.filter((c) => cardLevel(c) === level)
+    : filterByIntensity(playable, intensity);
   const source = pick(pool, Math.min(GAME_LENGTH, pool.length));
-  if (crescendo) {
+  if (crescendo && !level) {
     // Tri stable sur un ordre déjà mélangé : l'aléatoire est conservé
     // à l'intérieur de chaque palier d'intensité.
     source.sort((a, b) => cardLevel(a) - cardLevel(b));
   }
   const deck: DrawnCard[] = [];
   const followUps: { at: number; card: DrawnCard }[] = [];
-  const [minSips, maxSips] = SIPS_RANGE[intensity];
+  const [minSips, maxSips] = SIPS_RANGE[level ? LEVEL_SIPS[level] : intensity];
 
   for (const card of source) {
     const count = playersNeeded(card.text + (card.followUp ?? ''));
@@ -158,6 +169,7 @@ export const useGame = create<GameState>((set, get) => ({
   index: 0,
   intensity: 'normal',
   crescendo: false,
+  level: null,
 
   addPlayer: (name) => {
     const trimmed = name.trim();
@@ -173,11 +185,13 @@ export const useGame = create<GameState>((set, get) => ({
   setIntensity: (intensity) => set({ intensity }),
   setCrescendo: (crescendo) => set({ crescendo }),
 
-  startGame: (mode) => {
+  startGame: (mode, level) => {
     const { players, intensity, crescendo } = get();
     let teamA: string[] = [];
     let teamB: string[] = [];
-    const deck = buildDeck(mode, players, intensity, crescendo);
+    const deck = buildDeck(mode, players, intensity, crescendo, level);
+    const intro = level && mode.levelIntros?.[level];
+    if (intro) deck.unshift({ kind: 'rule', text: intro });
     if (mode.id === 'guerre') {
       const mixed = shuffle(players);
       teamA = mixed.slice(0, Math.ceil(mixed.length / 2));
@@ -187,10 +201,10 @@ export const useGame = create<GameState>((set, get) => ({
         text: `Les équipes sont formées !\n\n🔴 Équipe Rouge : ${teamA.join(', ')}\n\n🔵 Équipe Bleue : ${teamB.join(', ')}\n\nQue la guerre commence.`,
       });
     }
-    set({ mode, deck, index: 0, teamA, teamB });
+    set({ mode, deck, index: 0, teamA, teamB, level: level ?? null });
   },
 
   nextCard: () => set((s) => ({ index: Math.min(s.index + 1, s.deck.length) })),
   prevCard: () => set((s) => ({ index: Math.max(s.index - 1, 0) })),
-  endGame: () => set({ mode: null, deck: [], index: 0, teamA: [], teamB: [] }),
+  endGame: () => set({ mode: null, deck: [], index: 0, teamA: [], teamB: [], level: null }),
 }));

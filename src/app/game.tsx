@@ -7,7 +7,7 @@ import Animated, { FadeIn, FadeInDown, ZoomIn } from 'react-native-reanimated';
 
 import type { CardKind } from '@/data/types';
 import { enterAnim } from '@/lib/animations';
-import { useGame } from '@/store/game';
+import { useGame, type Level } from '@/store/game';
 
 const KIND_LABELS: Record<CardKind, string> = {
   action: '⚡ Action',
@@ -24,17 +24,18 @@ const KIND_LABELS: Record<CardKind, string> = {
 export default function GameScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { mode, deck, index, nextCard, prevCard, startGame, endGame, intensity, crescendo } =
+  const { mode, deck, index, nextCard, prevCard, startGame, endGame, intensity, crescendo, level } =
     useGame();
 
   if (!mode) return null;
 
-  const settingsBadge = [
-    intensity === 'soft' ? '🍃' : intensity === 'hard' ? '🌶️' : null,
-    crescendo ? '📈' : null,
-  ]
-    .filter(Boolean)
-    .join(' ');
+  const settingsBadge =
+    level && mode.levels
+      ? `Niv. ${level} · ${mode.levels[level - 1]}`
+      : [intensity === 'soft' ? '🍃' : intensity === 'hard' ? '🌶️' : null, crescendo ? '📈' : null]
+          .filter(Boolean)
+          .join(' ');
+  const nextLevel = level && level < 3 && mode.levels ? ((level + 1) as Level) : null;
 
   const finished = index >= deck.length;
   const card = finished ? null : deck[index];
@@ -103,19 +104,46 @@ export default function GameScreen() {
             <Text style={styles.endSubtitle}>
               Bravo (ou pas). Buvez une dernière gorgée pour la route.
             </Text>
+            {nextLevel && mode.levels && (
+              <Pressable
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                  startGame(mode, nextLevel);
+                }}
+                style={({ pressed }) => [
+                  styles.endBtn,
+                  { backgroundColor: mode.colors.accent, shadowColor: mode.colors.accent },
+                  pressed && styles.pressed,
+                ]}
+              >
+                <Text style={[styles.endBtnText, { color: mode.colors.onAccent }]}>
+                  Niveau {nextLevel} : {mode.levels[nextLevel - 1]}
+                </Text>
+              </Pressable>
+            )}
             <Pressable
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                startGame(mode);
+                startGame(mode, level ?? undefined);
               }}
               style={({ pressed }) => [
-                styles.endBtn,
-                { backgroundColor: mode.colors.accent, shadowColor: mode.colors.accent },
+                nextLevel
+                  ? styles.endBtnGhost
+                  : [
+                      styles.endBtn,
+                      { backgroundColor: mode.colors.accent, shadowColor: mode.colors.accent },
+                    ],
                 pressed && styles.pressed,
               ]}
             >
-              <Text style={[styles.endBtnText, { color: mode.colors.onAccent }]}>
-                Rejouer ce mode
+              <Text
+                style={
+                  nextLevel
+                    ? styles.endBtnGhostText
+                    : [styles.endBtnText, { color: mode.colors.onAccent }]
+                }
+              >
+                {level ? 'Rejouer ce niveau' : 'Rejouer ce mode'}
               </Text>
             </Pressable>
             <Pressable

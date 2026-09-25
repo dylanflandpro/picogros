@@ -1,6 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
+import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInDown } from 'react-native-reanimated';
@@ -10,7 +11,7 @@ import { enterAnim } from '@/lib/animations';
 import { Glow } from '@/lib/glow';
 import { theme } from '@/lib/theme';
 import type { GameMode } from '@/data/types';
-import { useGame, type Intensity } from '@/store/game';
+import { useGame, type Intensity, type Level } from '@/store/game';
 
 const INTENSITIES: { value: Intensity; label: string; emoji: string }[] = [
   { value: 'soft', label: 'Soft', emoji: '🍃' },
@@ -22,11 +23,21 @@ export default function ModesScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { players, startGame, intensity, setIntensity, crescendo, setCrescendo } = useGame();
+  /** Mode à niveaux dont le choix de niveau est déplié. */
+  const [levelsOpen, setLevelsOpen] = useState<string | null>(null);
 
-  const launch = (mode: GameMode) => {
-    if (players.length < mode.minPlayers) return;
+  const isLocked = (mode: GameMode) =>
+    players.length < mode.minPlayers || players.length > (mode.maxPlayers ?? Infinity);
+
+  const launch = (mode: GameMode, level?: Level) => {
+    if (isLocked(mode)) return;
+    if (mode.levels && !level) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      setLevelsOpen(levelsOpen === mode.id ? null : mode.id);
+      return;
+    }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    startGame(mode);
+    startGame(mode, level);
     router.push('/game');
   };
 
@@ -88,7 +99,7 @@ export default function ModesScreen() {
         </Animated.View>
 
         {MODES.map((mode, i) => {
-          const locked = players.length < mode.minPlayers;
+          const locked = isLocked(mode);
           return (
             <Animated.View
               key={mode.id}
@@ -134,12 +145,52 @@ export default function ModesScreen() {
                     </Text>
                     <Text style={styles.modeDescription}>{mode.description}</Text>
                     {locked && (
-                      <Text style={styles.lockedText}>🔒 {mode.minPlayers} joueurs minimum</Text>
+                      <Text style={styles.lockedText}>
+                        🔒{' '}
+                        {mode.maxPlayers === mode.minPlayers
+                          ? `${mode.minPlayers} joueurs uniquement`
+                          : players.length < mode.minPlayers
+                            ? `${mode.minPlayers} joueurs minimum`
+                            : `${mode.maxPlayers} joueurs maximum`}
+                      </Text>
                     )}
                   </View>
                   {!locked && <Text style={styles.chevron}>›</Text>}
                 </LinearGradient>
               </Pressable>
+              {mode.levels && levelsOpen === mode.id && !locked && (
+                <Animated.View
+                  entering={enterAnim(FadeInDown.springify().damping(16))}
+                  style={styles.levels}
+                >
+                  {mode.levels.map((name, l) => (
+                    <Pressable
+                      key={name}
+                      onPress={() => launch(mode, (l + 1) as Level)}
+                      style={({ pressed }) => [
+                        styles.levelBtn,
+                        { borderColor: mode.colors.accent },
+                        l === 2 && { backgroundColor: mode.colors.accent },
+                        pressed && styles.pressed,
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.levelNumber,
+                          { color: l === 2 ? mode.colors.onAccent : mode.colors.accent },
+                        ]}
+                      >
+                        Niveau {l + 1}
+                      </Text>
+                      <Text
+                        style={[styles.levelName, l === 2 && { color: mode.colors.onAccent }]}
+                      >
+                        {name}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </Animated.View>
+              )}
             </Animated.View>
           );
         })}
@@ -290,6 +341,23 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginTop: 6,
   },
+  levels: { flexDirection: 'row', gap: 8, marginTop: 10 },
+  levelBtn: {
+    flex: 1,
+    alignItems: 'center',
+    borderRadius: 16,
+    borderWidth: 1.5,
+    paddingVertical: 12,
+    paddingHorizontal: 6,
+    backgroundColor: theme.surface,
+  },
+  levelNumber: {
+    fontSize: 11,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+  },
+  levelName: { color: theme.white, fontSize: 14, fontWeight: '900', marginTop: 3 },
   chevron: {
     color: 'rgba(255,255,255,0.55)',
     fontSize: 30,

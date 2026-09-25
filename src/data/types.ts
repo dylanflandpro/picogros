@@ -55,6 +55,16 @@ export interface GameMode {
   emoji: string;
   colors: ModeColors;
   minPlayers: number;
+  /** Nombre de joueurs maximum (ex. 2 pour un mode couple). */
+  maxPlayers?: number;
+  /**
+   * Noms des trois niveaux si le mode se joue par niveau : chaque partie ne tire
+   * que les cartes d'intensité égale au niveau choisi (1, 2 ou 3), à la place
+   * des réglages intensité / crescendo.
+   */
+  levels?: readonly [string, string, string];
+  /** Carte « règle » posée en tête de partie pour un niveau donné. */
+  levelIntros?: Partial<Record<1 | 2 | 3, string>>;
   /** true si le contenu est réservé à un public averti (affiche un badge 18+). */
   spicy?: boolean;
   cards: Card[];
