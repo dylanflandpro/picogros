@@ -37,6 +37,7 @@ export default function ModesScreen() {
       return;
     }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setLevelsOpen(null);
     startGame(mode, level);
     router.push('/game');
   };
@@ -357,7 +358,13 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.6,
   },
-  levelName: { color: theme.white, fontSize: 14, fontWeight: '900', marginTop: 3 },
+  levelName: {
+    color: theme.white,
+    fontSize: 14,
+    fontWeight: '900',
+    marginTop: 3,
+    textAlign: 'center',
+  },
   chevron: {
     color: 'rgba(255,255,255,0.55)',
     fontSize: 30,

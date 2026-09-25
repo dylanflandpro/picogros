@@ -31,7 +31,7 @@ export default function GameScreen() {
 
   const settingsBadge =
     level && mode.levels
-      ? `Niv. ${level} · ${mode.levels[level - 1]}`
+      ? `Niv. ${level}`
       : [intensity === 'soft' ? '🍃' : intensity === 'hard' ? '🌶️' : null, crescendo ? '📈' : null]
           .filter(Boolean)
           .join(' ');
